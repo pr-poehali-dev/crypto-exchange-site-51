@@ -1,0 +1,38 @@
+{
+  "tests": [
+    {
+      "name": "Get wallet balance",
+      "method": "GET",
+      "path": "/?user_id=1&action=balance",
+      "headers": {
+        "X-User-Token": "test-token"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "wallets": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Exchange currency",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "X-User-Token": "test-token"
+      },
+      "body": {
+        "action": "exchange",
+        "user_id": 1,
+        "from_currency": "USDT",
+        "to_currency": "BTC",
+        "from_amount": 100,
+        "rate": 0.000023
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
