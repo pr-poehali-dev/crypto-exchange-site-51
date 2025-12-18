@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -75,6 +75,38 @@ export default function Index() {
   const [withdrawCurrency, setWithdrawCurrency] = useState('BTC');
   const [withdrawAmount, setWithdrawAmount] = useState('');
 
+  const loadWallets = useCallback(async () => {
+    if (!user) return;
+    
+    try {
+      const response = await fetch(`${WALLET_URL}?user_id=${user.id}&action=balance`, {
+        headers: { 'X-User-Token': token },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setWallets(data.wallets);
+      }
+    } catch (error) {
+      console.error('Failed to load wallets', error);
+    }
+  }, [user, token]);
+
+  const loadTransactions = useCallback(async () => {
+    if (!user) return;
+    
+    try {
+      const response = await fetch(`${WALLET_URL}?user_id=${user.id}&action=history`, {
+        headers: { 'X-User-Token': token },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setTransactions(data.transactions);
+      }
+    } catch (error) {
+      console.error('Failed to load transactions', error);
+    }
+  }, [user, token]);
+
   useEffect(() => {
     const savedToken = localStorage.getItem('token');
     const savedUser = localStorage.getItem('user');
@@ -89,7 +121,7 @@ export default function Index() {
       loadWallets();
       loadTransactions();
     }
-  }, [user, token]);
+  }, [user, token, loadWallets, loadTransactions]);
 
   const handleLogin = async () => {
     try {
@@ -146,38 +178,6 @@ export default function Index() {
       }
     } catch (error) {
       toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
-    }
-  };
-
-  const loadWallets = async () => {
-    if (!user) return;
-    
-    try {
-      const response = await fetch(`${WALLET_URL}?user_id=${user.id}&action=balance`, {
-        headers: { 'X-User-Token': token },
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setWallets(data.wallets);
-      }
-    } catch (error) {
-      console.error('Failed to load wallets', error);
-    }
-  };
-
-  const loadTransactions = async () => {
-    if (!user) return;
-    
-    try {
-      const response = await fetch(`${WALLET_URL}?user_id=${user.id}&action=history`, {
-        headers: { 'X-User-Token': token },
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setTransactions(data.transactions);
-      }
-    } catch (error) {
-      console.error('Failed to load transactions', error);
     }
   };
 
